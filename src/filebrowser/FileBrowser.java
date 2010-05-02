@@ -13,8 +13,15 @@ import javax.swing.JScrollPane;
 public class FileBrowser extends JFrame {
 
 	private static final long serialVersionUID = 4838120751269642102L;
+	private FileBrowserSettings _settings;
+	public static int instanceCount = 0;
 	
 	public FileBrowser(FileBrowserSettings settings) {
+
+		FileBrowser.instanceCount++;
+		
+		// save the settings so that we can open a new instance
+		_settings = settings;
 
 		BorderLayout layout = new BorderLayout();
 		this.setLayout(layout);
@@ -53,10 +60,18 @@ public class FileBrowser extends JFrame {
 
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				System.exit(0);
+				FileBrowser.instanceCount--;
+				if (FileBrowser.instanceCount == 0) {
+					System.exit(0);
+				}
+					
 			}
 		});
 
+	}
+
+	public void newInstance() {
+		new FileBrowser(_settings);
 	}
 
 }

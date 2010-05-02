@@ -30,6 +30,10 @@ public class MenuBar extends JPanel {
 		_refresh.addActionListener(new RefreshListener());
 		this.add(_refresh);
 		
+		JButton newWindow = new JButton("New Window");
+		newWindow.addActionListener(new NewWindowListener());
+		this.add(newWindow);
+		
 		
 		// start with buttons disabled
 		_upALevel.setEnabled(false);
@@ -68,5 +72,18 @@ public class MenuBar extends JPanel {
 		}
 
 	}
+	
+	private class NewWindowListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (_fileView != null) {
+				_fileView.newInstance();
+			}
+		}
+
+	}
+	
+	
 
 }
