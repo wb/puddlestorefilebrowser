@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -29,14 +28,15 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 	private GridLayout _gridLayout;
 	private List<FileIcon> _currentFileIcons;
 	private FileBrowserSettings _settings;
-	private JFrame _frame;
+	private FileBrowser _frame;
 
-	public FileView(File root, MenuBar menuBar, Footer footer, FileBrowserSettings settings, JFrame frame) {
+	public FileView(File root, MenuBar menuBar, Footer footer, FileBrowserSettings settings, FileBrowser frame) {
 
 		// store the frame
 		_frame = frame;
 
 		// store the settings
+		
 		_settings = settings;
 
 		// hold icons here (for selection, de-selection)
@@ -379,5 +379,9 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 				this.reload();
 		}
 
+	}
+	
+	public void newInstance() {
+		_frame.newInstance();
 	}
 }
