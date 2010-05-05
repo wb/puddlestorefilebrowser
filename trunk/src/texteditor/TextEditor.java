@@ -174,7 +174,10 @@ public class TextEditor extends JFrame {
 			int returnVal = fileChooser.showOpenDialog(TextEditor.this);
 
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
-				TextEditor.this.openFile(fileChooser.getSelectedFile());
+				File file = fileChooser.getSelectedFile();
+				System.out.println(file.getPath());
+				
+				//TextEditor.this.openFile(file);
 			}
 
 		}
@@ -241,7 +244,7 @@ public class TextEditor extends JFrame {
 					writer.close();
 					outputStreamWriter.close();
 					outputStream.close();
-					System.out.println("Wrote: " + _textArea.getText());
+					//System.out.println("Wrote: " + _textArea.getText());
 				} catch (FileNotFoundException e1) {
 					System.err.println("File not found.");
 				} catch (IOException e2) {

@@ -30,6 +30,7 @@ public class FileBrowser extends JFrame {
 		MenuBar menuBar = new MenuBar(settings);
 		this.add(menuBar, BorderLayout.NORTH);
 
+		this.setTitle("PuddleStore FileBrowser");
 		Footer footer = new Footer();
 		this.add(footer, BorderLayout.SOUTH);
 

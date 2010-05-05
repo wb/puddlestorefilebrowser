@@ -28,12 +28,14 @@ public class FileBrowserFileSystemView extends FileSystemView {
 		}
 		
 		String filePath = dirPath + filename;
+		System.out.println("CreatingFileObject from dir and filename " + filePath);
 		return _settings.createFileFromPath(filePath);
 		
 	}
 
 	@Override
 	public File createFileObject(String path) {
+		System.out.println("CreateFileObjext " + path);
 		return _settings.createFileFromPath(path);
 	}
 
