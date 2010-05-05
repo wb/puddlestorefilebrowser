@@ -10,6 +10,7 @@ import java.io.File;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
+
 public class FileBrowser extends JFrame {
 
 	private static final long serialVersionUID = 4838120751269642102L;
@@ -26,7 +27,7 @@ public class FileBrowser extends JFrame {
 		BorderLayout layout = new BorderLayout();
 		this.setLayout(layout);
 
-		MenuBar menuBar = new MenuBar();
+		MenuBar menuBar = new MenuBar(settings);
 		this.add(menuBar, BorderLayout.NORTH);
 
 		Footer footer = new Footer();
@@ -67,7 +68,7 @@ public class FileBrowser extends JFrame {
 					
 			}
 		});
-
+	
 	}
 
 	public void newInstance() {

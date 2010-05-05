@@ -9,15 +9,20 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import texteditor.TextEditor;
+
 public class MenuBar extends JPanel {
 
 	private static final long serialVersionUID = -5273523003402659881L;
 	private FileView _fileView;
 	private JButton _upALevel;
 	private JButton _refresh;
+	private FileBrowserSettings _settings;
+	
+	public MenuBar(FileBrowserSettings settings) {
 
-	public MenuBar() {
-
+		_settings = settings;
+		
 		this.setSize(new Dimension(FileBrowserConstants.WIDTH, FileBrowserConstants.MENU_BAR_HEIGHT));
 		this.setPreferredSize(new Dimension(FileBrowserConstants.WIDTH, FileBrowserConstants.MENU_BAR_HEIGHT));
 		this.setBackground(Color.lightGray);
@@ -33,6 +38,10 @@ public class MenuBar extends JPanel {
 		JButton newWindow = new JButton("New Window");
 		newWindow.addActionListener(new NewWindowListener());
 		this.add(newWindow);
+		
+		JButton newEditor = new JButton("New Editor");
+		newEditor.addActionListener(new NewEditorListener());
+		this.add(newEditor);
 		
 		
 		// start with buttons disabled
@@ -84,6 +93,14 @@ public class MenuBar extends JPanel {
 
 	}
 	
-	
+	private class NewEditorListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Opening new TextEditor.");
+			new TextEditor(_settings);
+		}
+
+	}
 
 }
