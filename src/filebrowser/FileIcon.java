@@ -43,7 +43,6 @@ public class FileIcon extends JPanel {
 			sizeText = "(" + _file.length() + " bytes)";
 		}
 
-		sizeText += "\nParent: " + _file.getParent();
 		// make it transparent and give it a tool tip
 		this.setOpaque(false);
 		this.setToolTipText(file.getName() + " " + sizeText);
