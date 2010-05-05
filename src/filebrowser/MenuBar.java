@@ -97,7 +97,7 @@ public class MenuBar extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("Opening new TextEditor.");
+			//System.out.println("Opening new TextEditor.");
 			new TextEditor(_settings);
 		}
 
