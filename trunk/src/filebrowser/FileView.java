@@ -347,7 +347,7 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 
 			try {
 				if (file.createNewFile()) {
-					System.out.println("Created file: " + path);
+					//System.out.println("Created file: " + path);
 					this.reload();
 				}
 				else {
@@ -359,7 +359,7 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 		} else if (type == FileType.DIRECTORY && action == FileAction.CREATE) {
 
 			if (file.mkdir()) {
-				System.out.println("Created directory: " + path);
+				//System.out.println("Created directory: " + path);
 				this.reload();
 			}
 			else {

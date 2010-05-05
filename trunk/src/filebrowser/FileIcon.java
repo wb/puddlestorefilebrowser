@@ -40,7 +40,9 @@ public class FileIcon extends JPanel {
 			int fileCount = _file.listFiles().length;
 			sizeText = "(" + fileCount + " item" + (fileCount != 1 ? "s" : "") + ")";
 		} else {
-			sizeText = "(" + _file.length() + " bytes)";
+			long fileLength = _file.length();
+			
+			sizeText = "(" + fileLength + " byte" + (fileLength != 1 ? "s" : "") + ")";
 		}
 
 		// make it transparent and give it a tool tip

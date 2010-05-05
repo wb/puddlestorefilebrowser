@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,6 +30,7 @@ import filebrowser.FileBrowserSettings;
 public class TextEditor extends JFrame {
 
 	private static final long serialVersionUID = 7139460774094010717L;
+	private static final String EDITOR_TITLE = "PuddleStore TextEditor - ";
 	private JTextArea _textArea;
 	private File _openFile = null;
 	private FileBrowserSettings _settings;
@@ -81,9 +84,44 @@ public class TextEditor extends JFrame {
 		// let there be light!
 		this.setVisible(true);
 
+
+		_textArea.addKeyListener(
+				new KeyListener(){
+					public void keyPressed(KeyEvent e){
+						if (e.getKeyCode() == 83 && e.getModifiers() == 2) {
+							TextEditor.this.saveFile();
+						}
+						else if ((e.getKeyCode() == 87 || e.getKeyCode() == 81) && e.getModifiers() == 2) {
+							System.out.println("Bye bye!");
+							TextEditor.this.dispose();
+						}
+						else if (e.getKeyCode() == 82 && e.getModifiers() == 2) {
+							TextEditor.this.openFile(_openFile);
+						}
+					}
+
+					@Override
+					public void keyReleased(KeyEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void keyTyped(KeyEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+				}
+		);
+
 	}
 
 	public boolean openFile(File file) {
+		
+		// if the file is null, return false
+		if (file == null) 
+			return false;
+		
 		try {
 
 			InputStream inputStream = _settings.getInputStream(file);
@@ -115,7 +153,7 @@ public class TextEditor extends JFrame {
 		_openFile = file;
 
 		// set the window title
-		this.setTitle(file.getName());
+		this.setTitle(EDITOR_TITLE + file.getAbsolutePath());
 
 		// return true
 		return true;
@@ -149,7 +187,51 @@ public class TextEditor extends JFrame {
 		}
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (_openFile != null) {
+			TextEditor.this.saveFile();
+		}
+	}
+
+	private void saveFile() {
+		if (_openFile != null) {
+			try {
+				OutputStream outputStream = _settings.getOutputStream(_openFile);
+				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+				BufferedWriter writer = new BufferedWriter(outputStreamWriter);
+
+				writer.write(_textArea.getText());
+				writer.close();
+				outputStreamWriter.close();
+				outputStream.close();
+				//System.out.println("Wrote: " + _textArea.getText());
+			} catch (FileNotFoundException e1) {
+				System.err.println("File not found.");
+			} catch (IOException e2) {
+				System.err.println("Error writing to file.");
+			}
+		} else {
+			JFileChooser fileChooser = new JFileChooser(_settings.getRootFile(), new FileBrowserFileSystemView(_settings));
+			fileChooser.setDialogTitle("Select a File to Open");
+			fileChooser.setApproveButtonText("Save");
+			TextEditor.this.getContentPane().add(fileChooser);
+			fileChooser.setVisible(true);
+			int returnVal = fileChooser.showOpenDialog(TextEditor.this);
+
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fileChooser.getSelectedFile();
+				System.out.println(fileChooser.getCurrentDirectory().getAbsolutePath());
+				if (!file.exists()) {
+					try {
+						file.createNewFile();
+					} catch (IOException e1) {
+						System.err.println("Couldn't save to file!");
+						return;
+					}
+				}
+				//System.out.println("Saving to " + file.getAbsolutePath());
+
+				_openFile = file;
+				TextEditor.this.setTitle(EDITOR_TITLE + file.getAbsolutePath());
+
 				try {
 					OutputStream outputStream = _settings.getOutputStream(_openFile);
 					OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
@@ -165,53 +247,10 @@ public class TextEditor extends JFrame {
 				} catch (IOException e2) {
 					System.err.println("Error writing to file.");
 				}
-			} else {
-				JFileChooser fileChooser = new JFileChooser(_settings.getRootFile(), new FileBrowserFileSystemView(_settings));
-				fileChooser.setDialogTitle("Select a File to Open");
-				fileChooser.setApproveButtonText("Save");
-				TextEditor.this.getContentPane().add(fileChooser);
-				fileChooser.setVisible(true);
-				int returnVal = fileChooser.showOpenDialog(TextEditor.this);
 
-				if(returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = fileChooser.getSelectedFile();
-					System.out.println(fileChooser.getCurrentDirectory().getAbsolutePath());
-					if (!file.exists()) {
-						try {
-							file.createNewFile();
-						} catch (IOException e1) {
-							System.err.println("Couldn't save to file!");
-							return;
-						}
-					}
-					System.out.println("Saving to " + file.getAbsolutePath());
-					
-					_openFile = file;
-					TextEditor.this.setTitle(file.getName());
-					
-					try {
-						OutputStream outputStream = _settings.getOutputStream(_openFile);
-						OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-						BufferedWriter writer = new BufferedWriter(outputStreamWriter);
-
-						writer.write(_textArea.getText());
-						writer.close();
-						outputStreamWriter.close();
-						outputStream.close();
-						System.out.println("Wrote: " + _textArea.getText());
-					} catch (FileNotFoundException e1) {
-						System.err.println("File not found.");
-					} catch (IOException e2) {
-						System.err.println("Error writing to file.");
-					}
-					
-				}
 			}
-
 		}
-
 	}
-
 	private class ExitAction extends AbstractAction {
 		private static final long serialVersionUID = -6521806944077479342L;
 		public ExitAction() {
