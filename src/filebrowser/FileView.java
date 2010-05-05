@@ -350,6 +350,9 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 					System.out.println("Created file: " + path);
 					this.reload();
 				}
+				else {
+					new PopupDialog(_frame, "Error", "Could not create file with path \"" + path + "\"!");
+				}
 			} catch (IOException e) {
 				new PopupDialog(_frame, "Error", "Could not create file with path \"" + path + "\"!");
 			}

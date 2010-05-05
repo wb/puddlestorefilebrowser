@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -55,11 +56,9 @@ public class TextEditor extends JFrame {
 
 		// create actions for the menu bar
 		Action openAction = new OpenAction();
-		openAction.setEnabled(false);
-
 		Action saveAction = new SaveAction();
-
 		Action exitAction = new ExitAction();
+		Action reloadAction = new ReloadAction();
 
 		// create the menu bar
 		JMenuBar menuBar = new JMenuBar();
@@ -67,6 +66,8 @@ public class TextEditor extends JFrame {
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
+		fileMenu.addSeparator();
+		fileMenu.add(reloadAction);
 		fileMenu.addSeparator();
 		fileMenu.add(exitAction);
 		this.setJMenuBar(menuBar);
@@ -100,6 +101,7 @@ public class TextEditor extends JFrame {
 			inputStream.close();
 
 			_textArea.setText(builder.toString());
+			_textArea.setCaretPosition(0);
 
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found.");
@@ -120,53 +122,90 @@ public class TextEditor extends JFrame {
 	}
 
 	private class OpenAction extends AbstractAction {
-
 		private static final long serialVersionUID = -630859446328983611L;
-
 		public OpenAction() {
 			super("Open");
 		}
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			System.err.println("Open is not supported yet.");
+			JFileChooser fileChooser = new JFileChooser(_settings.getRootFile(), new FileBrowserFileSystemView(_settings));
+			fileChooser.setDialogTitle("Select a File to Open");
+			TextEditor.this.getContentPane().add(fileChooser);
+			fileChooser.setVisible(true);
+			int returnVal = fileChooser.showOpenDialog(TextEditor.this);
+
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				TextEditor.this.openFile(fileChooser.getSelectedFile());
+			}
 
 		}
-
 	}
 
 	private class SaveAction extends AbstractAction {
-
 		private static final long serialVersionUID = 5290060732732764008L;
-
 		public SaveAction() {
 			super("Save");
 		}
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
 			if (_openFile != null) {
-
 				try {
 					OutputStream outputStream = _settings.getOutputStream(_openFile);
 					OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
 					BufferedWriter writer = new BufferedWriter(outputStreamWriter);
+
 					writer.write(_textArea.getText());
 					writer.close();
 					outputStreamWriter.close();
 					outputStream.close();
 					System.out.println("Wrote: " + _textArea.getText());
-
 				} catch (FileNotFoundException e1) {
 					System.err.println("File not found.");
 				} catch (IOException e2) {
 					System.err.println("Error writing to file.");
 				}
-
 			} else {
-				System.err.println("Saving blank file is not supported yet.");
+				JFileChooser fileChooser = new JFileChooser(_settings.getRootFile(), new FileBrowserFileSystemView(_settings));
+				fileChooser.setDialogTitle("Select a File to Open");
+				fileChooser.setApproveButtonText("Save");
+				TextEditor.this.getContentPane().add(fileChooser);
+				fileChooser.setVisible(true);
+				int returnVal = fileChooser.showOpenDialog(TextEditor.this);
+
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fileChooser.getSelectedFile();
+					System.out.println(fileChooser.getCurrentDirectory().getAbsolutePath());
+					if (!file.exists()) {
+						try {
+							file.createNewFile();
+						} catch (IOException e1) {
+							System.err.println("Couldn't save to file!");
+							return;
+						}
+					}
+					System.out.println("Saving to " + file.getAbsolutePath());
+					
+					_openFile = file;
+					TextEditor.this.setTitle(file.getName());
+					
+					try {
+						OutputStream outputStream = _settings.getOutputStream(_openFile);
+						OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+						BufferedWriter writer = new BufferedWriter(outputStreamWriter);
+
+						writer.write(_textArea.getText());
+						writer.close();
+						outputStreamWriter.close();
+						outputStream.close();
+						System.out.println("Wrote: " + _textArea.getText());
+					} catch (FileNotFoundException e1) {
+						System.err.println("File not found.");
+					} catch (IOException e2) {
+						System.err.println("Error writing to file.");
+					}
+					
+				}
 			}
 
 		}
@@ -174,21 +213,27 @@ public class TextEditor extends JFrame {
 	}
 
 	private class ExitAction extends AbstractAction {
-
 		private static final long serialVersionUID = -6521806944077479342L;
-
 		public ExitAction() {
 			super("Close");
 		}
-
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
 			_openFile = null;
 			TextEditor.this.dispose();
-
 		}
-
 	}
 
+	private class ReloadAction extends AbstractAction {
+		private static final long serialVersionUID = -6521806944077479342L;
+		public ReloadAction() {
+			super("Reload");
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (_openFile != null) {
+				TextEditor.this.openFile(_openFile);
+			}
+		}
+	}
 }
