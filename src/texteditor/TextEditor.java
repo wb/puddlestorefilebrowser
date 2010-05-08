@@ -60,6 +60,7 @@ public class TextEditor extends JFrame {
 		// create actions for the menu bar
 		Action openAction = new OpenAction();
 		Action saveAction = new SaveAction();
+		Action appendAction = new AppendAction();
 		Action exitAction = new ExitAction();
 		Action reloadAction = new ReloadAction();
 
@@ -69,6 +70,7 @@ public class TextEditor extends JFrame {
 		fileMenu.setMnemonic('F');
 		fileMenu.add(openAction);
 		fileMenu.add(saveAction);
+		fileMenu.add(appendAction);
 		fileMenu.addSeparator();
 		fileMenu.add(reloadAction);
 		fileMenu.addSeparator();
@@ -117,11 +119,11 @@ public class TextEditor extends JFrame {
 	}
 
 	public boolean openFile(File file) {
-		
+
 		// if the file is null, return false
 		if (file == null) 
 			return false;
-		
+
 		try {
 
 			InputStream inputStream = _settings.getInputStream(file);
@@ -175,8 +177,10 @@ public class TextEditor extends JFrame {
 
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fileChooser.getSelectedFile();
+				System.out.println(fileChooser.getCurrentDirectory().getPath());
 				System.out.println(file.getPath());
-				
+				System.out.println("Parent: " + file.getParent());
+
 				//TextEditor.this.openFile(file);
 			}
 
@@ -197,7 +201,17 @@ public class TextEditor extends JFrame {
 	private void saveFile() {
 		if (_openFile != null) {
 			try {
-				OutputStream outputStream = _settings.getOutputStream(_openFile);
+
+				// check to make sure the file exists
+				if (!_openFile.exists()) {
+					System.out.println("File did not exist.  Trying to create it.");
+					if (!_openFile.createNewFile()) {
+						System.err.println("File does not exist and it could not be created. File not saved");
+						return;
+					}
+				}
+
+				OutputStream outputStream = _settings.getOutputStream(_openFile, false);
 				OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
 				BufferedWriter writer = new BufferedWriter(outputStreamWriter);
 
@@ -205,6 +219,19 @@ public class TextEditor extends JFrame {
 				writer.close();
 				outputStreamWriter.close();
 				outputStream.close();
+/*
+				String oldTitle = TextEditor.this.getTitle();
+
+				TextEditor.this.setTitle(EDITOR_TITLE + "Saved!");
+
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+
+				}
+				
+				TextEditor.this.setTitle(oldTitle);*/
+
 				//System.out.println("Wrote: " + _textArea.getText());
 			} catch (FileNotFoundException e1) {
 				System.err.println("File not found.");
@@ -236,7 +263,7 @@ public class TextEditor extends JFrame {
 				TextEditor.this.setTitle(EDITOR_TITLE + file.getAbsolutePath());
 
 				try {
-					OutputStream outputStream = _settings.getOutputStream(_openFile);
+					OutputStream outputStream = _settings.getOutputStream(_openFile, false);
 					OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
 					BufferedWriter writer = new BufferedWriter(outputStreamWriter);
 
@@ -278,4 +305,93 @@ public class TextEditor extends JFrame {
 			}
 		}
 	}
+
+	private class AppendAction extends AbstractAction {
+		private static final long serialVersionUID = -6521806944077479342L;
+		public AppendAction() {
+			super("Append");
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+
+			if (_openFile != null) {
+				try {
+
+					// check to make sure the file exists
+					if (!_openFile.exists()) {
+						System.out.println("File did not exist.  Trying to create it.");
+						if (!_openFile.createNewFile()) {
+							System.err.println("File does not exist and it could not be created. File not saved");
+							return;
+						}
+					}
+
+					OutputStream outputStream = _settings.getOutputStream(_openFile, true);
+					OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+					BufferedWriter writer = new BufferedWriter(outputStreamWriter);
+
+					writer.write(_textArea.getText());
+					writer.close();
+					outputStreamWriter.close();
+					outputStream.close();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e3) {}
+					TextEditor.this.openFile(_openFile);
+
+					//System.out.println("Wrote: " + _textArea.getText());
+				} catch (FileNotFoundException e1) {
+					System.err.println("File not found.");
+				} catch (IOException e2) {
+					System.err.println("Error writing to file.");
+				}
+			} else {
+				JFileChooser fileChooser = new JFileChooser(_settings.getRootFile(), new FileBrowserFileSystemView(_settings));
+				fileChooser.setDialogTitle("Select a File to Open");
+				fileChooser.setApproveButtonText("Save");
+				TextEditor.this.getContentPane().add(fileChooser);
+				fileChooser.setVisible(true);
+				int returnVal = fileChooser.showOpenDialog(TextEditor.this);
+
+				if(returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fileChooser.getSelectedFile();
+					System.out.println(fileChooser.getCurrentDirectory().getAbsolutePath());
+					if (!file.exists()) {
+						try {
+							file.createNewFile();
+						} catch (IOException e1) {
+							System.err.println("Couldn't save to file!");
+							return;
+						}
+					}
+					//System.out.println("Saving to " + file.getAbsolutePath());
+
+					_openFile = file;
+					TextEditor.this.setTitle(EDITOR_TITLE + file.getAbsolutePath());
+
+					try {
+						OutputStream outputStream = _settings.getOutputStream(_openFile, true);
+						OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
+						BufferedWriter writer = new BufferedWriter(outputStreamWriter);
+
+						writer.write(_textArea.getText());
+						writer.close();
+						outputStreamWriter.close();
+						outputStream.close();
+						try {
+							Thread.sleep(100);
+						} catch (InterruptedException e3) {}
+						TextEditor.this.openFile(_openFile);
+						//System.out.println("Wrote: " + _textArea.getText());
+					} catch (FileNotFoundException e1) {
+						System.err.println("File not found.");
+					} catch (IOException e2) {
+						System.err.println("Error writing to file.");
+					}
+
+				}
+			}
+		}
+	}
+
 }

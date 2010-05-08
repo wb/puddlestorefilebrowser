@@ -9,6 +9,6 @@ public interface FileBrowserSettings {
 
 	public File getRootFile();
 	public File createFileFromPath(String path);
-	public OutputStream getOutputStream(File file) throws FileNotFoundException;
+	public OutputStream getOutputStream(File file, boolean append) throws FileNotFoundException;
 	public InputStream getInputStream(File file) throws FileNotFoundException;
 }
