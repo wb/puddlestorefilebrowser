@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -22,6 +23,7 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 
 	private static final long serialVersionUID = 502295914956195639L;
 	private File _currentDirectory;
+	private File[] _currentDirectoryList;
 	private ClickHandler _clickHandler;
 	private MenuBar _menuBar;
 	private Footer _footer;
@@ -36,7 +38,7 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 		_frame = frame;
 
 		// store the settings
-		
+
 		_settings = settings;
 
 		// hold icons here (for selection, de-selection)
@@ -60,6 +62,23 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 		// load the root directory
 		this.loadDirectory(root);
 
+		new Thread(new Runnable() {
+			public void run() {
+				while (true) {
+
+					if (FileView.this.reload()) {
+						System.out.println("Reloaded.");
+					}
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+
+					}
+
+				}
+			}
+		}).start();
+
 	}
 
 	@Override
@@ -78,7 +97,18 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 	}
 
 	public boolean reload() {
-		return this.loadDirectory(_currentDirectory);
+		if (_currentDirectory != null) {
+			if (!Arrays.equals(_currentDirectoryList, _currentDirectory.listFiles())) {
+				_currentDirectoryList = _currentDirectory.listFiles();
+				return this.loadDirectory(_currentDirectory);
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return this.loadDirectory(_currentDirectory);
+		}
 	}
 
 	public boolean loadDirectory(File file) {
@@ -364,7 +394,7 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 			}
 			else {
 				new PopupDialog(_frame, "Error", "Could not create directory with path \"" + path + "\"!");
-				
+
 			}
 		} else if (type == FileType.FILE && action == FileAction.RENAME && editedFile != null) {
 
@@ -383,7 +413,7 @@ public class FileView extends JPanel implements CreateRenameDialogCallback {
 		}
 
 	}
-	
+
 	public void newInstance() {
 		_frame.newInstance();
 	}
