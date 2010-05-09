@@ -57,6 +57,23 @@ public class TextEditor extends JFrame {
 		this.setMinimumSize(new Dimension(TextEditorConstants.WIDTH, TextEditorConstants.HEIGHT));
 		this.setBackground(Color.white);
 
+		
+		// create actions for the submenu for locking
+		Action readLockAction = new ReadLockAction();
+		Action writeLockAction = new WriteLockAction();
+		Action renewLockAction = new RenewLockAction();
+		//renewLockAction.setEnabled(false);
+		Action releaseLockAction = new ReleaseLockAction();
+		//releaseLockAction.setEnabled(false);
+		
+		// create the locking submenu
+		JMenuBar lockBar = new JMenuBar();
+		JMenu lockMenu = lockBar.add(new JMenu("Locking"));
+		lockMenu.add(readLockAction);
+		lockMenu.add(writeLockAction);
+		lockMenu.add(renewLockAction);
+		lockMenu.add(releaseLockAction);
+		
 		// create actions for the menu bar
 		Action openAction = new OpenAction();
 		Action saveAction = new SaveAction();
@@ -64,6 +81,7 @@ public class TextEditor extends JFrame {
 		Action exitAction = new ExitAction();
 		Action reloadAction = new ReloadAction();
 
+		
 		// create the menu bar
 		JMenuBar menuBar = new JMenuBar();
 		JMenu fileMenu = menuBar.add(new JMenu("File"));
@@ -73,6 +91,8 @@ public class TextEditor extends JFrame {
 		fileMenu.add(appendAction);
 		fileMenu.addSeparator();
 		fileMenu.add(reloadAction);
+		fileMenu.addSeparator();
+		fileMenu.add(lockMenu);
 		fileMenu.addSeparator();
 		fileMenu.add(exitAction);
 		this.setJMenuBar(menuBar);
@@ -393,5 +413,53 @@ public class TextEditor extends JFrame {
 			}
 		}
 	}
+	
+	Action releaseLockAction = new ReleaseLockAction();
+	
+	private class WriteLockAction extends AbstractAction {
+		private static final long serialVersionUID = -6521806944077479342L;
+		public WriteLockAction() {
+			super("Get Write Lock");
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Getting write lock.");
+		}
+	}
+	
+	private class ReadLockAction extends AbstractAction {
+		private static final long serialVersionUID = -6521806944077479342L;
+		public ReadLockAction() {
+			super("Get Read Lock");
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Getting read lock.");
+		}
+	}
+	
+	private class RenewLockAction extends AbstractAction {
+		private static final long serialVersionUID = -6521806944077479342L;
+		public RenewLockAction() {
+			super("Renew Lock");
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Renewing lock.");
+		}
+	}
+	
+	private class ReleaseLockAction extends AbstractAction {
+		private static final long serialVersionUID = -6521806944077479342L;
+		public ReleaseLockAction() {
+			super("Release Lock");
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			System.out.println("Release lock.");
+		}
+	}
+	
+	
 
 }
